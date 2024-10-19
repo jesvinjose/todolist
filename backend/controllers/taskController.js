@@ -93,9 +93,44 @@ const deleteTask = async (req, res) => {
   }
 };
 
+const editTask = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const { title, description } = req.body;
+
+    // Find the task by ID and update it
+    const updatedTask = await Task.findByIdAndUpdate(
+      id, // Correctly passing the id
+      {
+        title,
+        description, // Include description in the update object
+      },
+      {
+        new: true, // Return the updated document
+        runValidators: true, // Ensure that validation is applied
+      }
+    );
+
+    // Check if the task was found and updated
+    if (!updatedTask) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    // Send the updated task as the response
+    return res.status(200).json({
+      message: "Task updated successfully",
+      task: updatedTask,
+    });
+  } catch (error) {
+    console.error("Error updating task:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 module.exports = {
   addTask,
   getAllTasks,
   changeCompletionStatus,
   deleteTask,
+  editTask
 };
